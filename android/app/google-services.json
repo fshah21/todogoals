@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "913436538919",
+    "project_id": "todogoals-ea6d4",
+    "storage_bucket": "todogoals-ea6d4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913436538919:android:a80f8e9fae57cd81aa7602",
+        "android_client_info": {
+          "package_name": "com.feyashah.todogoals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgdPfyYGgDx5HM3yYfzXW0OuM3zyIMHVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
