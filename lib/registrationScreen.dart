@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'homeScreen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -28,29 +29,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         password: _passwordController.text.trim(),
       );
 
+      // Save the user ID in Firestore
+      final userId = userCredential.user?.uid;
+
+      // Create a new document for the user in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'email': _emailController.text.trim(),
+        // You can save other user details here
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration Successful: ${userCredential.user?.email}')),
       );
 
       // Navigate to HomeScreen after successful registration
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()), // Ensure HomeScreen is imported
-        );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen(userId: userId)),
+      );
 
-        // Clear the fields after successful registration
-        _emailController.clear();
-        _passwordController.clear();
-        _confirmPasswordController.clear();
-      } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.message}')),
-        );
-      } finally {
-        setState(() => _isLoading = false);
-      }
+      // Clear the fields after successful registration
+      _emailController.clear();
+      _passwordController.clear();
+      _confirmPasswordController.clear();
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.message}')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

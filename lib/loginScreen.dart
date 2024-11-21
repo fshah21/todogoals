@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'homeScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,15 +31,19 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text.trim(),
         );
 
+        // Save user ID in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userCredential.user?.uid ?? '');
+
         // If successful, show a success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful')),
         );
 
-        // Navigate to HomeScreen (you can replace with your actual home screen)
+        // Navigate to HomeScreen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()), // Ensure HomeScreen is imported
+          MaterialPageRoute(builder: (context) => HomeScreen(userId: userCredential.user?.uid ?? '')),
         );
       } on FirebaseAuthException catch (e) {
         // Handle errors (e.g., wrong credentials)
