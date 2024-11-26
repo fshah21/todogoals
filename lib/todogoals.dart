@@ -92,6 +92,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Delete category from Firestore
+  Future<void> _deleteCategory(Category category) async {
+    try {
+      final categoryRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .collection('categories')
+          .doc(category.name);
+
+      await categoryRef.delete();
+
+      setState(() {
+        categories.remove(category); // Remove from UI after deletion
+      });
+    } catch (e) {
+      print("Error deleting category: $e");
+    }
+  }
+
   void _addCategory() {
     if (_categoryController.text.isNotEmpty) {
       final newCategory = Category(name: _categoryController.text);
@@ -146,16 +165,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Add Category Section
-            TextField(
-              controller: _categoryController,
-              decoration: const InputDecoration(
-                labelText: 'Add Category',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: _addCategory,
-              child: const Text('Add Category'),
+            // Add Category Section (Inline)
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _categoryController,
+                    decoration: const InputDecoration(
+                      labelText: 'Add Category',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addCategory,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -165,57 +190,70 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(category.name, style: const TextStyle(fontSize: 18)),
-                          const SizedBox(height: 8),
-
-                          // Add Task Section
-                          TextField(
-                            controller: _taskController,
-                            decoration: const InputDecoration(
-                              labelText: 'Add Task',
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Category name with delete button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(category.name, style: const TextStyle(fontSize: 18)),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _deleteCategory(category),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => _addTask(category),
-                            child: const Text('Add Task'),
-                          ),
-                          const SizedBox(height: 8),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
 
-                          // Display Tasks
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: category.tasks.length,
-                            itemBuilder: (context, taskIndex) {
-                              final task = category.tasks[taskIndex];
-                              return ListTile(
-                                title: Text(
-                                  task.title,
-                                  style: TextStyle(
-                                    decoration: task.isChecked
-                                        ? TextDecoration.lineThrough
-                                        : TextDecoration.none,
-                                  ),
+                        // Add Task Section
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _taskController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Add Task',
                                 ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () => _deleteTask(category, taskIndex),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _addTask(category),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Display Tasks
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: category.tasks.length,
+                          itemBuilder: (context, taskIndex) {
+                            final task = category.tasks[taskIndex];
+                            return ListTile(
+                              title: Text(
+                                task.title,
+                                style: TextStyle(
+                                  decoration: task.isChecked
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
                                 ),
-                                leading: Checkbox(
-                                  value: task.isChecked,
-                                  onChanged: (value) => _toggleTaskChecked(category, taskIndex),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () => _deleteTask(category, taskIndex),
+                              ),
+                              leading: Checkbox(
+                                value: task.isChecked,
+                                onChanged: (value) => _toggleTaskChecked(category, taskIndex),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   );
                 },
