@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'addHabitScreen.dart';
+import 'conversationScreen.dart';
 
 class ChatScreen extends StatelessWidget {
   final String userId; // Accept userId
@@ -105,6 +106,8 @@ class ChatScreen extends StatelessWidget {
                         return ChatCard(
                           title: "$goalName - ($firstName $lastName)",
                           description: status ?? "No status",
+                          roomId: roomIdString,
+                          userId: userId
                         );
                       },
                     );
@@ -117,6 +120,8 @@ class ChatScreen extends StatelessWidget {
                   return ChatCard(
                     title: "**$goalName**",
                     description: status ?? "No status",
+                    roomId: "roomId",
+                    userId: "userId"
                   );
                 },
               );
@@ -146,10 +151,14 @@ class ChatScreen extends StatelessWidget {
 class ChatCard extends StatelessWidget {
   final String title;
   final String description;
+  final String roomId; // Add roomId to pass
+  final String userId;
 
   const ChatCard({
     required this.title,
     required this.description,
+    required this.roomId, // Add roomId parameter
+    required this.userId,
     Key? key,
   }) : super(key: key);
 
@@ -171,7 +180,13 @@ class ChatCard extends StatelessWidget {
         subtitle: Text(description),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: () {
-          // Navigate to a detailed chat screen (optional)
+          // Navigate to the conversation screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ConversationScreen(roomId: roomId, userId: userId), // Pass roomId
+            ),
+          );
         },
       ),
     );
