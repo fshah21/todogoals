@@ -9,6 +9,7 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("IN THE WIDGET");
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Chats (User: $userId)'), // Display userId
@@ -67,10 +68,18 @@ class ChatScreen extends StatelessWidget {
                           .get(),
                       builder: (context, userSnapshot) {
                         if (userSnapshot.connectionState == ConnectionState.waiting) {
+                          return const SizedBox.shrink(); // Optionally, show loading indicator here
+                        }
+
+                        if (userSnapshot.hasError) {
+                          // Handle any error that occurs while fetching the user document
+                          print("Error fetching user: ${userSnapshot.error}");
                           return const SizedBox.shrink();
                         }
 
                         if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+                          // If no user data is found, handle the empty state
+                          print("User document does not exist.");
                           return const SizedBox.shrink();
                         }
 
@@ -78,12 +87,30 @@ class ChatScreen extends StatelessWidget {
                         final firstName = matchedUser['firstName'] ?? 'Unknown';
                         final lastName = matchedUser['lastName'] ?? 'User';
 
+                        final roomId = [userId, matchedWith]..sort();
+                        final roomIdString = roomId.join("-");
+
+                        // Check if the chat room already exists, if not create it
+                        FirebaseFirestore.instance.collection('chats').doc(roomIdString).get().then((roomDoc) {
+                          if (!roomDoc.exists) {
+                            // Create a new chat room
+                            FirebaseFirestore.instance.collection('chats').doc(roomIdString).set({
+                              'userIds': [userId, matchedWith],
+                              'createdAt': FieldValue.serverTimestamp(),
+                              'lastMessage': null,
+                            });
+                          }
+                        });
+
                         return ChatCard(
                           title: "$goalName - ($firstName $lastName)",
                           description: status ?? "No status",
                         );
                       },
                     );
+                  } else {
+                    print("MATCHED WITH IS NULL OR EMPTY");
+                    return const SizedBox.shrink(); // No matched user, do nothing
                   }
 
                   // If no matchedWith, display just the goal name
