@@ -24,10 +24,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void initState() {
     super.initState();
 
+    print("ROOM ID INITSTATE ${widget.roomId}");
+    print("USER ID INITSTATE ${widget.userId}");
+
     // Initialize socket connection
     socket = IO.io('https://todobackend-913436538919.asia-south1.run.app', <String, dynamic>{
       'transports': ['websocket'],
+      'autoConnect': true
     });
+
+    socket.connect();
 
     socket.on('connect', (_) {
       print('Connected to socket');
@@ -41,18 +47,23 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     socket.on('message-history', (data) {
       print("Message history received: $data");
-      setState(() {
-        // Populate messages list with the fetched history
-        messages = List<Map<String, dynamic>>.from(data['messages']);
-      });
+      if (mounted) {
+        setState(() {
+          messages = List<Map<String, dynamic>>.from(data['messages']);
+        });
+      }
+    });
+
+    socket.on('connect_error', (error) {
+      print('Connection error: $error');
     });
   }
 
   @override
   void dispose() {
+    // Disconnect the socket
+    socket.disconnect();    
     super.dispose();
-    // Clean up and close socket connection
-    socket.disconnect();
   }
 
   void sendMessage() {
