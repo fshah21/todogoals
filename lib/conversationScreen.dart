@@ -5,6 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+
+class ImageWebViewPage extends StatelessWidget {
+  final String imageUrl;
+
+  ImageWebViewPage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Image in WebView")),
+      body: WebviewScaffold(
+        url: imageUrl,  // Use your image URL here
+        appBar: AppBar(
+          title: Text("Image Viewer"),
+        ),
+        withZoom: true,
+        withLocalStorage: true,
+      ),
+    );
+  }
+}
 
 class ConversationScreen extends StatefulWidget {
   final String roomId;
@@ -109,21 +131,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  void _showFullImage(String base64Image) {
+  void _showFullImage(String imageUrl) {
     print("IN SHOW FULL IMAGE");
-    final Uint8List imageData = base64Decode(base64Image);
+    print("IMAGE URL: $imageUrl");
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        Timer(const Duration(seconds: 10), () {
-          Navigator.of(context).pop();
-        });
-
-        return AlertDialog(
-          content: Image.memory(imageData),
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageWebViewPage(imageUrl: imageUrl),
+      ),
     );
   }
 
