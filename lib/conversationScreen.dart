@@ -7,27 +7,6 @@ import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
-class ImageWebViewPage extends StatelessWidget {
-  final String imageUrl;
-
-  ImageWebViewPage({required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Image in WebView")),
-      body: WebviewScaffold(
-        url: imageUrl,  // Use your image URL here
-        appBar: AppBar(
-          title: Text("Image Viewer"),
-        ),
-        withZoom: true,
-        withLocalStorage: true,
-      ),
-    );
-  }
-}
-
 class ConversationScreen extends StatefulWidget {
   final String roomId;
   final String userId;

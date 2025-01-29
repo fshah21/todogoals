@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## TODOs 
+
+1. Chat streak scores calculate and display - Jan end
+2. When send an image, Tap to open type thing instead of just one red square - Feb 9
+3. Add Habit screen. Add 5 habits. Some notifications - Feb 16
+4. Some UI changes. Basic colors and splash screen logo - Feb 23
+5. Buffer week - Mar 2
