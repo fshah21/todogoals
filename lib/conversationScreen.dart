@@ -74,6 +74,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
       }
     });
 
+    socket.on('receive-message', (data) {
+      print("DATA $data");
+      if (mounted) {
+        if(data['message_type'] == "image") {
+          setState(() {
+            messages.add({'message_type': 'image', 'image_url': data['image_url'], 'sender_id': data['sender_id']});
+            selectedImage = null; // Clear after sending
+          });
+        } else {
+          setState(() {
+            messages.add({'message_content': data['message_content'], 'sender_id': data['sender_id']});
+          });
+        }
+        // setState(() {
+        //   messages 
+        // });
+      }
+    });
+
     socket.on('connect_error', (error) {
       print('Connection error: $error');
     });
@@ -105,11 +124,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
         'messageType': 'image',
         'senderId': widget.userId,
       });
-
-      setState(() {
-        messages.add({'image_path': base64Image, 'sender_id': widget.userId});
-        selectedImage = null; // Clear after sending
-      });
     }
   }
 
@@ -123,10 +137,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
         'senderId': widget.userId,
       });
 
-      setState(() {
-        messages.add({'message_content': message, 'sender_id': widget.userId});
-      });
-
       messageController.clear();
     }
   }
@@ -135,10 +145,22 @@ class _ConversationScreenState extends State<ConversationScreen> {
     print("IN SHOW FULL IMAGE");
     print("IMAGE URL: $imageUrl");
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageWebViewPage(imageUrl: imageUrl),
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black, // Set background to black for better viewing
+        insetPadding: EdgeInsets.zero, // Make the image full screen
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context), // Close on tap
+          child: InteractiveViewer(
+            child: Center(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain, // Ensure image fits the screen properly
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
