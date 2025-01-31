@@ -14,7 +14,7 @@ class ChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Chats (User: $userId)'), // Display userId
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF5271FF),
       ),
       body: FutureBuilder<QuerySnapshot>(
         // Fetch user goals from Firestore where the userId matches

@@ -149,7 +149,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Track Habit"),
-        backgroundColor: Color(0xFF4E48E0),
+        backgroundColor: Color(0xFF5271FF),
       ),
       body: Column(
         children: [

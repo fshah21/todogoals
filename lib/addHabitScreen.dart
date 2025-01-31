@@ -103,7 +103,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Habit'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF5271FF),
       ),
       body: goals.isEmpty
           ? Center(child: CircularProgressIndicator()) // Show loading indicator
