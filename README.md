@@ -17,8 +17,15 @@ samples, guidance on mobile development, and a full API reference.
 
 ## TODOs 
 
-1. Chat streak scores calculate and display - Jan end
+1. Chat streak scores calculate and display - Jan end - DONE!!!!!
 2. When send an image, Tap to open type thing instead of just one red square - Feb 9
 3. Add Habit screen. Add 5 habits. Some notifications - Feb 16
 4. Some UI changes. Basic colors and splash screen logo - Feb 23
 5. Buffer week - Mar 2
+
+
+## Pinterest pins for chat screen
+
+1. https://in.pinterest.com/pin/884887026788020025/
+2. https://in.pinterest.com/pin/1006906429166815020/
+3. https://in.pinterest.com/pin/702772716837304946/

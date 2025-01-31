@@ -148,8 +148,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat Room"),
-        backgroundColor: Colors.deepPurple,
+        title: const Text("Track Habit"),
+        backgroundColor: Color(0xFF4E48E0),
       ),
       body: Column(
         children: [
@@ -167,25 +167,51 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 // print("MESSAGE PATH ${message['image_url']}");
 
                 if (message['message_type'] == 'image') {
-                  print("MESSAGE TYPE IS IMAGE");
-                  return Align(
-                    alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: () => _showFullImage(message['image_url'] ?? ''),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(4),
+                    print("MESSAGE TYPE IS IMAGE");
+                    return Align(
+                      alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () => _showFullImage(message['image_url'] ?? ''),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            color: Colors.grey[200], // Light background for contrast
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2, // Subtle shadow for a polished look
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Red square
+                                  Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12), // Spacing between square & text
+                                  // "Tap to open" text
+                                  Text(
+                                    "Tap to open",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                } else {
+                    );
+                  } else {
                   return Align(
                     alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Padding(
@@ -193,7 +219,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isSentByUser ? Colors.blueAccent : Colors.grey[300],
+                          color: isSentByUser ? Color(0xFF4E48E0) : Color(0XE5E1FF),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(

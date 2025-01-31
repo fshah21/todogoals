@@ -114,7 +114,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   goalName: goals[index]['name'] ?? 'Unnamed Goal',
                   status: goals[index]['status'] ?? 'Unknown',
                   onTap: () {
-                    if (goals[index]['status'] == 'Enrolled') {
+                    if (goals[index]['status'] == 'Enrolled' || goals[index]['status'] == 'Matched') {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('You are already enrolled!')),
                       );
