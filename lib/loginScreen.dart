@@ -39,6 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       String userId = userCredential.user?.uid ?? "";
 
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', userId);
+
       // Navigate to the HomeScreen
       Navigator.pushReplacement(
         context,

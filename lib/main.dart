@@ -4,6 +4,8 @@ import 'loginScreen.dart';
 import 'registrationScreen.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'chatScreen.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,13 +35,28 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to home screen after 2 seconds
-    Timer(Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-    });
+    checkAndNavigate();
+  }
+
+  void checkAndNavigate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+
+    if (userId != null && userId.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen(userId: userId)),
+        );
+      });
+    } else {
+        Timer(Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      });
+    }
   }
 
   @override
