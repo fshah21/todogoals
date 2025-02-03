@@ -13,7 +13,7 @@ class ChatScreen extends StatelessWidget {
     print("IN THE WIDGET");
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Chats (User: $userId)'), // Display userId
+        title: Text('Chats'), // Display userId
         backgroundColor: Color(0xFF5271FF),
       ),
       body: FutureBuilder<QuerySnapshot>(
@@ -143,81 +143,81 @@ class ChatScreen extends StatelessWidget {
               //   },
               // );
               return FutureBuilder<DocumentSnapshot>(
-  future: FirebaseFirestore.instance.collection('goals').doc(goalId).get(),
-  builder: (context, goalSnapshot) {
-    if (goalSnapshot.connectionState == ConnectionState.waiting) {
-      return const SizedBox.shrink();
-    }
-
-    if (!goalSnapshot.hasData || !goalSnapshot.data!.exists) {
-      return const SizedBox.shrink();
-    }
-
-    final goalName = goalSnapshot.data!['name'];
-
-    if (matchedWith != null) {
-      return FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('users').doc(matchedWith).get(),
-        builder: (context, userSnapshot) {
-          if (userSnapshot.connectionState == ConnectionState.waiting) {
+        future: FirebaseFirestore.instance.collection('goals').doc(goalId).get(),
+        builder: (context, goalSnapshot) {
+          if (goalSnapshot.connectionState == ConnectionState.waiting) {
             return const SizedBox.shrink();
           }
 
-          if (userSnapshot.hasError || !userSnapshot.hasData || !userSnapshot.data!.exists) {
-            print("Error fetching user or user document does not exist.");
+          if (!goalSnapshot.hasData || !goalSnapshot.data!.exists) {
             return const SizedBox.shrink();
           }
 
-          final matchedUser = userSnapshot.data!.data() as Map<String, dynamic>;
-          final firstName = matchedUser['firstName'] ?? 'Unknown';
-          final lastName = matchedUser['lastName'] ?? 'User';
+          final goalName = goalSnapshot.data!['name'];
 
-          final roomId = [userId, matchedWith]..sort();
-          final roomIdString = roomId.join("-");
-
+          if (matchedWith != null) {
           return FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection('chats').doc(roomIdString).get(),
-            builder: (context, chatSnapshot) {
-              if (chatSnapshot.connectionState == ConnectionState.waiting) {
+            future: FirebaseFirestore.instance.collection('users').doc(matchedWith).get(),
+            builder: (context, userSnapshot) {
+              if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const SizedBox.shrink();
               }
 
-              int userStreak = 0;
-              int buddyStreak = 0;
-
-              if (chatSnapshot.hasData && chatSnapshot.data!.exists) {
-                final chatData = chatSnapshot.data!.data() as Map<String, dynamic>;
-                final scores = chatData.containsKey('scores') ? chatData['scores'] as Map<String, dynamic> : {};
-                userStreak = scores.containsKey(userId) ? (scores[userId]['streak'] ?? 0) : 0;
-                buddyStreak = scores.containsKey(matchedWith) ? (scores[matchedWith]['streak'] ?? 0) : 0;
-              } else {
-                // If chat room doesn't exist, create it
-                FirebaseFirestore.instance.collection('chats').doc(roomIdString).set({
-                  'userIds': [userId, matchedWith],
-                  'createdAt': FieldValue.serverTimestamp(),
-                  'lastMessage': null,
-                  'scores': {},
-                });
+              if (userSnapshot.hasError || !userSnapshot.hasData || !userSnapshot.data!.exists) {
+                print("Error fetching user or user document does not exist.");
+                return const SizedBox.shrink();
               }
 
-              return ChatCard(
-                title: "$goalName - ($firstName $lastName)",
-                description: status ?? "No status",
-                roomId: roomIdString,
-                userId: userId,
-                userStreak: userStreak,
-                buddyStreak: buddyStreak,
+              final matchedUser = userSnapshot.data!.data() as Map<String, dynamic>;
+              final firstName = matchedUser['firstName'] ?? 'Unknown';
+              final lastName = matchedUser['lastName'] ?? 'User';
+
+              final roomId = [userId, matchedWith]..sort();
+              final roomIdString = roomId.join("-");
+
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('chats').doc(roomIdString).get(),
+                builder: (context, chatSnapshot) {
+                  if (chatSnapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  }
+
+                  int userStreak = 0;
+                  int buddyStreak = 0;
+
+                  if (chatSnapshot.hasData && chatSnapshot.data!.exists) {
+                    final chatData = chatSnapshot.data!.data() as Map<String, dynamic>;
+                    final scores = chatData.containsKey('scores') ? chatData['scores'] as Map<String, dynamic> : {};
+                    userStreak = scores.containsKey(userId) ? (scores[userId]['streak'] ?? 0) : 0;
+                    buddyStreak = scores.containsKey(matchedWith) ? (scores[matchedWith]['streak'] ?? 0) : 0;
+                  } else {
+                    // If chat room doesn't exist, create it
+                    FirebaseFirestore.instance.collection('chats').doc(roomIdString).set({
+                      'userIds': [userId, matchedWith],
+                      'createdAt': FieldValue.serverTimestamp(),
+                      'lastMessage': null,
+                      'scores': {},
+                    });
+                  }
+
+                  return ChatCard(
+                    title: "$goalName - ($firstName $lastName)",
+                    description: status ?? "No status",
+                    roomId: roomIdString,
+                    userId: userId,
+                    userStreak: userStreak,
+                    buddyStreak: buddyStreak,
+                  );
+                },
               );
             },
           );
-        },
-      );
-    } else {
-      print("MATCHED WITH IS NULL OR EMPTY");
-      return const SizedBox.shrink();
-    }
-  },
-);
+        } else {
+          print("MATCHED WITH IS NULL OR EMPTY");
+          return const SizedBox.shrink();
+        }
+      },
+    );
 
             },
           );

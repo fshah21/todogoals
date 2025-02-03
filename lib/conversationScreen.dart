@@ -22,6 +22,7 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  final ScrollController _scrollController = ScrollController();
   late IO.Socket socket;
   TextEditingController messageController = TextEditingController();
   List<Map<String, dynamic>> messages = [];
@@ -50,6 +51,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         setState(() {
           messages = List<Map<String, dynamic>>.from(data['messages']);
         });
+        scrollToBottom();
       }
     });
 
@@ -79,6 +81,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     socket.disconnect();
     super.dispose();
   }
@@ -144,6 +147,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 
+  void scrollToBottom() {
+    Future.delayed(Duration(milliseconds: 50), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut, // Smooth scroll effect
+        );
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ConversationScreen oldWidget) {
+    print("IN DID UPDATE WIDGET");
+    super.didUpdateWidget(oldWidget);
+    scrollToBottom(); // Scroll to the bottom when new messages are added
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,6 +178,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           // Chat messages list
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
