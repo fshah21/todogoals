@@ -226,15 +226,23 @@ class ChatScreen extends StatelessWidget {
       // Persistent Button at the Bottom
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Add Habit Button Action
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddHabitScreen(userId: userId)),
-          );
-        },
-        label: const Text("Add Habit"),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.deepPurple,
+            // Add Habit Button Action
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddHabitScreen(userId: userId)),
+            );
+          },
+          label: const Text(
+            "Add Habit",
+            style: TextStyle(
+              color: Colors.white,  // White text color
+            ),
+          ),
+          icon: const Icon(
+            Icons.add,
+            color: Colors.white,  // White icon color
+          ),
+          backgroundColor: Color(0xFF5271FF),  // Custom background color
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
