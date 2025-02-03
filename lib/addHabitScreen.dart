@@ -47,10 +47,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           final goalName = goalDoc['name'];
 
           // Check if this goal is in the user's mappings
-          final status = userGoalsMap[goalId] ?? 'Not Enrolled';
+          final status = userGoalsMap[goalId] ?? 'null';
           print("STATUS $status");
 
-          if (status != 'Not Enrolled') {
+          if (status != 'null') {
             return {'id': goalId, 'name': goalName, 'status': status};
           } else {
             return null; // Returning null for goals that are not enrolled
@@ -63,10 +63,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           final goalName = goalDoc['name'];
 
           // Check if this goal is in the user's mappings
-          final status = userGoalsMap[goalId];
+          final status = userGoalsMap[goalId] ?? 'null';
           print("STATUS $status");
 
-          if (!status) {
+          if (status == 'null') {
             return {'id': goalId, 'name': goalName, 'status': status};
           } else {
             return null; // Returning null for goals that are not enrolled
@@ -97,7 +97,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         await userGoalCollection.add({
           'userId': widget.userId,
           'goalId': goalId,
-          'status': 'Enrolled',
+          'status': 'Not Enrolled',
         });
       } else {
         print("ELSE PART");
@@ -140,6 +140,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               setState(() {
                 selectedGoalId = newValue!;
               });
+              enrollUserToGoal(newValue!);
             },
             items: filteredGoals.map((goal) {
               return DropdownMenuItem<String>(
