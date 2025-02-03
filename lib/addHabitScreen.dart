@@ -63,10 +63,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           final goalName = goalDoc['name'];
 
           // Check if this goal is in the user's mappings
-          final status = userGoalsMap[goalId] ?? 'Not Enrolled';
+          final status = userGoalsMap[goalId];
           print("STATUS $status");
 
-          if (status == 'Not Enrolled') {
+          if (!status) {
             return {'id': goalId, 'name': goalName, 'status': status};
           } else {
             return null; // Returning null for goals that are not enrolled
