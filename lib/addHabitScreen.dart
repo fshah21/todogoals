@@ -12,49 +12,71 @@ class AddHabitScreen extends StatefulWidget {
 
 class _AddHabitScreenState extends State<AddHabitScreen> {
   List<Map<String, dynamic>> goals = [];
+  List<Map<String, dynamic>> filteredGoals = [];
+  String selectedGoalId = '';
 
   // Fetch goals and check mapping with user
   Future<void> fetchGoals() async {
-  try {
-    // Fetch all goals
-    final goalsSnapshot =
-        await FirebaseFirestore.instance.collection('goals').get();
+    try {
+      // Fetch all goals
+      final goalsSnapshot =
+          await FirebaseFirestore.instance.collection('goals').get();
 
-    // Fetch user-goal mappings for the logged-in user
-    final userGoalsSnapshot = await FirebaseFirestore.instance
-        .collection('userGoals')
-        .where('userId', isEqualTo: widget.userId)
-        .get();
+      // Fetch user-goal mappings for the logged-in user
+      final userGoalsSnapshot = await FirebaseFirestore.instance
+          .collection('userGoals')
+          .where('userId', isEqualTo: widget.userId)
+          .get();
 
-    // Create a map of goal IDs that the user has enrolled in
-    final userGoalsMap = userGoalsSnapshot.docs.asMap().map(
-        (key, doc) {
-            final goalId = doc['goalId'];
-            final status = doc.data().containsKey('status') ? doc['status'] : 'Not Enrolled';
-            return MapEntry(goalId, status);
-        },
-    );
+      // Create a map of goal IDs that the user has enrolled in
+      final userGoalsMap = userGoalsSnapshot.docs.asMap().map(
+          (key, doc) {
+              final goalId = doc['goalId'];
+              final status = doc.data().containsKey('status') ? doc['status'] : 'Not Enrolled';
+              return MapEntry(goalId, status);
+          },
+      );
 
 
-    print("USER GOALS MAP $userGoalsMap");
+      print("USER GOALS MAP $userGoalsMap");
 
-    // Update the goals list with status
-    setState(() {
-      goals = goalsSnapshot.docs.map((goalDoc) {
-        final goalId = goalDoc.id;
-        final goalName = goalDoc['name'];
+      // Update the goals list with status
+      setState(() {
+        goals = goalsSnapshot.docs.map((goalDoc) {
+          final goalId = goalDoc.id;
+          final goalName = goalDoc['name'];
 
-        // Check if this goal is in the user's mappings
-        final status = userGoalsMap[goalId] ?? 'Not Enrolled';
-        print("STATUS $status");
+          // Check if this goal is in the user's mappings
+          final status = userGoalsMap[goalId] ?? 'Not Enrolled';
+          print("STATUS $status");
 
-        return {'id': goalId, 'name': goalName, 'status': status};
-      }).toList();
-    });
-  } catch (e) {
-    print('Error fetching goals: $e');
+          if (status != 'Not Enrolled') {
+            return {'id': goalId, 'name': goalName, 'status': status};
+          } else {
+            return null; // Returning null for goals that are not enrolled
+          }
+        }).where((goal) => goal != null).cast<Map<String, dynamic>>().toList(); // cast to remove n
+
+        // Filter out only those goals that the user is not enrolled or matched in
+        filteredGoals = goalsSnapshot.docs.map((goalDoc) {
+          final goalId = goalDoc.id;
+          final goalName = goalDoc['name'];
+
+          // Check if this goal is in the user's mappings
+          final status = userGoalsMap[goalId] ?? 'Not Enrolled';
+          print("STATUS $status");
+
+          if (status == 'Not Enrolled') {
+            return {'id': goalId, 'name': goalName, 'status': status};
+          } else {
+            return null; // Returning null for goals that are not enrolled
+          }
+        }).where((goal) => goal != null).cast<Map<String, dynamic>>().toList();
+      });
+    } catch (e) {
+      print('Error fetching goals: $e');
+    }
   }
-}
 
   // Enroll a user to a goal
   Future<void> enrollUserToGoal(String goalId) async {
@@ -105,9 +127,35 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         title: const Text('Add Habit'),
         backgroundColor: Color(0xFF5271FF),
       ),
-      body: goals.isEmpty
-          ? Center(child: CircularProgressIndicator()) // Show loading indicator
-          : ListView.builder(
+      body: Column(
+      children: [
+        // Dropdown to select unenrolled or unmatched goals
+        Container(
+          width: MediaQuery.of(context).size.width * 0.8, // 80% width
+          child: DropdownButton<String>(
+            hint: Text("Select a Goal to Enroll"),
+            isExpanded: true,
+            value: selectedGoalId.isNotEmpty ? selectedGoalId : null,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedGoalId = newValue!;
+              });
+            },
+            items: filteredGoals.map((goal) {
+              return DropdownMenuItem<String>(
+                value: goal['id'],
+                child: Text(goal['name'] ?? 'Unnamed Goal'),
+              );
+            }).toList(),
+          ),
+        ),
+
+        // Show loading indicator if goals are empty
+        if (goals.isEmpty)
+          Center(child: CircularProgressIndicator())
+        else
+          Expanded(
+            child: ListView.builder(
               itemCount: goals.length,
               itemBuilder: (context, index) {
                 return GoalCard(
@@ -128,7 +176,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         return AlertDialog(
                           title: Text('Enroll Now?'),
                           content: Text(
-                              'Do you want to enroll in "${goals[index]['name']}"?'),
+                            'Do you want to enroll in "${goals[index]['name']}"?',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -138,10 +187,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
-                                print("ON PRESSED YES");
                                 Navigator.pop(context); // Close the dialog
-                                print("POPING DONE");
-                                print(goals[index]);
                                 await enrollUserToGoal(goals[index]['id']);
                               },
                               child: Text('Yes'),
@@ -154,7 +200,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 );
               },
             ),
-    );
+          ),
+      ],
+    ),
+  );
   }
 }
 
