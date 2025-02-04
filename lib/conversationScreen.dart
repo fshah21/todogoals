@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:intl/intl.dart';
 
 class ConversationScreen extends StatefulWidget {
   final String roomId;
@@ -51,7 +52,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         setState(() {
           messages = List<Map<String, dynamic>>.from(data['messages']);
         });
-        scrollToBottom();
+        WidgetsBinding.instance.addPostFrameCallback((_) => scrollToBottom());
       }
     });
 
@@ -84,6 +85,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _scrollController.dispose();
     socket.disconnect();
     super.dispose();
+  }
+
+  String formatTimestamp(String timestamp) {
+    try {
+      DateTime utcTime = DateTime.parse(timestamp).toUtc();
+      DateTime istTime = utcTime.add(Duration(hours: 5, minutes: 30)); // Convert to IST
+      return DateFormat('hh:mm a').format(istTime); // Format as "04:00 PM"
+    } catch (e) {
+      return ''; // Handle invalid timestamps
+    }
   }
 
   Future<void> _pickImage() async {
@@ -148,13 +159,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 50), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut, // Smooth scroll effect
+          curve: Curves.easeOut,
         );
+      } else {
+        print("ScrollController has no clients yet.");
       }
     });
   }
@@ -168,47 +181,45 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Track Habit"),
-        backgroundColor: Color(0xFF5271FF),
-      ),
-      body: Column(
-        children: [
-          // Chat messages list
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                print("MESSAGE $message");
-                final senderId = message['sender_id'] ?? '';
-                print("SENDER ID $senderId");
-                final isSentByUser = senderId == widget.userId;
-                print("IS SENT BY USER $isSentByUser");
-                // print("MESSAGE PATH ${message['image_url']}");
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Track Habit"),
+      backgroundColor: Color(0xFF5271FF),
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            controller: _scrollController,
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              final senderId = message['sender_id'] ?? '';
+              final isSentByUser = senderId == widget.userId;
+              final timestamp = message['timestamp'] ?? ''; // Get timestamp
+              final formattedTime = formatTimestamp(timestamp); // Convert to IST
 
-                if (message['message_type'] == 'image') {
-                    print("MESSAGE TYPE IS IMAGE");
-                    return Align(
-                      alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () => _showFullImage(message['image_url'] ?? ''),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+              return Align(
+                alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      if (message['message_type'] == 'image')
+                        GestureDetector(
+                          onTap: () => _showFullImage(message['image_url'] ?? ''),
                           child: Card(
-                            color: Colors.grey[200], // Light background for contrast
+                            color: Colors.grey[200],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            elevation: 2, // Subtle shadow for a polished look
+                            elevation: 2,
                             child: Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Red square
                                   Container(
                                     width: 20,
                                     height: 20,
@@ -217,8 +228,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   ),
-                                  const SizedBox(width: 12), // Spacing between square & text
-                                  // "Tap to open" text
+                                  const SizedBox(width: 12),
                                   Text(
                                     "Tap to open",
                                     style: TextStyle(
@@ -231,61 +241,65 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  } else {
-                  return Align(
-                    alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: isSentByUser ? Color(0xFF4E48E0) : Color(0XE5E1FF),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          message['message_content'] ?? '',
-                          style: TextStyle(
-                            color: isSentByUser ? Colors.white : Colors.black,
-                            fontSize: 16,
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSentByUser ? Color(0xFF4E48E0) : Color(0XE5E1FF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            message['message_content'] ?? '',
+                            style: TextStyle(
+                              color: isSentByUser ? Colors.white : Colors.black,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
+                      const SizedBox(height: 4), // Space for timestamp
+                      Text(
+                        formattedTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
-          // Input field and send button
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    onChanged: (_) {
-                      setState(() {});
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Type a message",
-                    ),
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    messageController.text.isEmpty ? Icons.image : Icons.send,
-                  ),
-                  onPressed: messageController.text.isEmpty ? _pickImage : sendMessage,
-                ),
-              ],
-            ),
+              );
+            },
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          color: Colors.white,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: messageController,
+                  onChanged: (_) {
+                    setState(() {});
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Type a message",
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  messageController.text.isEmpty ? Icons.image : Icons.send,
+                ),
+                onPressed: messageController.text.isEmpty ? _pickImage : sendMessage,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
