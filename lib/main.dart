@@ -82,23 +82,31 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow,
+      backgroundColor: Color(0xFF5271FF), // Set the full background color
       body: Column(
         children: [
+          SizedBox(height: 60),  // Adjust this value to shift content higher or lower
           Expanded(
-            flex: 7, // 70% of the screen
-            child: Center(
-              child: Container(), // Blank area to show no content
-            ),
-          ),
-          Expanded(
-            flex: 3, // 30% of the screen
+            flex: 2, // 30% of the screen
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 8.0),
+                  child: Text(
+                    "Connect with people who share your habit-building goals.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24), // Spacing before buttons
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Red color
+                    backgroundColor: Colors.white, // White background
                     fixedSize: Size(200, 50),
                   ),
                   onPressed: () {
@@ -110,13 +118,13 @@ class HomePage extends StatelessWidget {
                   },
                   child: Text(
                     'LOG IN',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: Color(0xFF5271FF)),
                   ),
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 24),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Blue color
+                    backgroundColor: Colors.white, // White background
                     fixedSize: Size(200, 50),
                   ),
                   onPressed: () {
@@ -128,9 +136,10 @@ class HomePage extends StatelessWidget {
                   },
                   child: Text(
                     'SIGN UP',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: Color(0xFF5271FF)),
                   ),
                 ),
+                SizedBox(height: 10), // Extra space at the bottom
               ],
             ),
           ),

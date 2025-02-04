@@ -105,8 +105,18 @@ class _LoginScreenState extends State<LoginScreen> {
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _signIn,
-                      child: const Text('Login'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF5271FF), // Background color
+                      padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                    ).copyWith(
+                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),  // 5px border radius
+                      )),
+                    ),
+                    onPressed: _signIn,
+                    child: Text(
+                    'LOG IN',
+                    style: TextStyle(fontSize: 18, color: Colors.white)),
                     ),
             ],
           ),

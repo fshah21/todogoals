@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'chatScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -32,7 +33,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         );
 
         // Save the user ID in Firestore
-        final userId = userCredential.user?.uid;
+        final userId = userCredential.user?.uid ?? "";
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
 
         // Create a new document for the user in Firestore
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
