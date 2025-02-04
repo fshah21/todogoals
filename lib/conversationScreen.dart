@@ -97,6 +97,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  String formatDate(String timestamp) {
+    try {
+      DateTime utcTime = DateTime.parse(timestamp).toUtc();
+      DateTime istTime = utcTime.add(Duration(hours: 5, minutes: 30)); // Convert to IST
+      return DateFormat('EEE, MMM dd').format(istTime); // Format as "Wed, Jan 30"
+    } catch (e) {
+      return '';
+    }
+  }
+
   Future<void> _pickImage() async {
     print("IN PICK IMAGE");
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -198,81 +208,122 @@ class _ConversationScreenState extends State<ConversationScreen> {
               final isSentByUser = senderId == widget.userId;
               final timestamp = message['timestamp'] ?? ''; // Get timestamp
               final formattedTime = formatTimestamp(timestamp); // Convert to IST
+              final formattedDate = formatDate(timestamp); // Extract date
 
-              return Align(
-                alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                    children: [
-                      if (message['message_type'] == 'image')
-                        GestureDetector(
-                          onTap: () => _showFullImage(message['image_url'] ?? ''),
-                          child: Card(
-                            color: Colors.grey[200],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    "Tap to open",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              bool showDate = index == 0 ||
+                  formatDate(messages[index - 1]['timestamp'] ?? '') != formattedDate;
+
+              return Column(
+                children: [
+                  // Show date separator when needed
+                  if (showDate)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
                           decoration: BoxDecoration(
-                            color: isSentByUser ? Color(0xFF4E48E0) : Color(0XE5E1FF),
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 2,
+                                spreadRadius: 1,
+                                offset: Offset(0, 1),
+                              ),
+                            ],
                           ),
                           child: Text(
-                            message['message_content'] ?? '',
+                            formattedDate,
                             style: TextStyle(
-                              color: isSentByUser ? Colors.white : Colors.black,
-                              fontSize: 16,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
-                      const SizedBox(height: 4), // Space for timestamp
-                      Text(
-                        formattedTime,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
                       ),
-                    ],
+                    ),
+
+                  // Chat message
+                  Align(
+                    alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: isSentByUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          if (message['message_type'] == 'image')
+                            GestureDetector(
+                              onTap: () => _showFullImage(message['image_url'] ?? ''),
+                              child: Card(
+                                color: Colors.grey[200],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        "Tap to open",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: isSentByUser ? Color(0xFF4E48E0) : Color(0xFFE0E7FF),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                message['message_content'] ?? '',
+                                style: TextStyle(
+                                  color: isSentByUser ? Colors.white : Colors.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+
+                          const SizedBox(height: 4), // Space for timestamp
+                          Text(
+                            formattedTime,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               );
             },
           ),
         ),
-        
+
         Container(
           padding: const EdgeInsets.all(8.0),
           color: Colors.white,
