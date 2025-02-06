@@ -43,105 +43,7 @@ class ChatScreen extends StatelessWidget {
               final matchedWith = data.containsKey('matchedWith') ? data['matchedWith'] : null;
               final status = data.containsKey('status') ? data['status'] : null;
 
-              // Fetch goal name from 'goals' collection based on goalId
-              // return FutureBuilder<DocumentSnapshot>(
-              //   future: FirebaseFirestore.instance
-              //       .collection('goals')
-              //       .doc(goalId)
-              //       .get(),
-              //   builder: (context, goalSnapshot) {
-              //     if (goalSnapshot.connectionState == ConnectionState.waiting) {
-              //       return const SizedBox.shrink();
-              //     }
-
-              //     if (!goalSnapshot.hasData || !goalSnapshot.data!.exists) {
-              //       return const SizedBox.shrink();
-              //     }
-
-              //     final goalName = goalSnapshot.data!['name'];
-
-              //     // If matchedWith exists, fetch user details
-              //     if (matchedWith != null) {
-              //       return FutureBuilder<DocumentSnapshot>(
-              //         future: FirebaseFirestore.instance
-              //             .collection('users')
-              //             .doc(matchedWith)
-              //             .get(),
-              //         builder: (context, userSnapshot) {
-              //           if (userSnapshot.connectionState == ConnectionState.waiting) {
-              //             return const SizedBox.shrink(); // Optionally, show loading indicator here
-              //           }
-
-              //           if (userSnapshot.hasError) {
-              //             // Handle any error that occurs while fetching the user document
-              //             print("Error fetching user: ${userSnapshot.error}");
-              //             return const SizedBox.shrink();
-              //           }
-
-              //           if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
-              //             // If no user data is found, handle the empty state
-              //             print("User document does not exist.");
-              //             return const SizedBox.shrink();
-              //           }
-
-              //           final matchedUser = userSnapshot.data!.data() as Map<String, dynamic>;
-              //           final firstName = matchedUser['firstName'] ?? 'Unknown';
-              //           final lastName = matchedUser['lastName'] ?? 'User';
-
-              //           final roomId = [userId, matchedWith]..sort();
-              //           final roomIdString = roomId.join("-");
-
-              //           FirebaseFirestore.instance.collection('chats').doc(roomIdString).get().then((roomDoc) {
-              //             builder: (context, chatSnapshot) {
-              //             if (chatSnapshot.connectionState == ConnectionState.waiting) {
-              //               return const SizedBox.shrink();
-              //             }
-
-              //             int userStreak = 0;
-              //             int buddyStreak = 0;
-
-              //             if (chatSnapshot.hasData && chatSnapshot.data!.exists) {
-              //               final chatData = chatSnapshot.data!.data() as Map<String, dynamic>;
-              //               final scores = chatData.containsKey('scores') ? chatData['scores'] as Map<String, dynamic> : {};
-              //               userStreak = scores.containsKey(userId) ? scores[userId]['streak'] ?? 0 : 0;
-              //               buddyStreak = scores.containsKey(matchedWith) ? scores[matchedWith]['streak'] ?? 0 : 0;
-              //             } else {
-              //               // If chat room doesn't exist, create it
-              //               FirebaseFirestore.instance.collection('chats').doc(roomIdString).set({
-              //                 'userIds': [userId, matchedWith],
-              //                 'createdAt': FieldValue.serverTimestamp(),
-              //                 'lastMessage': null,
-              //                 'scores': {},
-              //               });
-              //             }
-
-              //             return ChatCard(
-              //               title: "$goalName - ($firstName $lastName)",
-              //               description: status ?? "No status",
-              //               roomId: roomIdString,
-              //               userId: userId,
-              //               userStreak: userStreak,
-              //               buddyStreak: buddyStreak,
-              //             );
-              //           };
-              //         });
-              //     });
-              //     } else {
-              //       print("MATCHED WITH IS NULL OR EMPTY");
-              //       return const SizedBox.shrink(); // No matched user, do nothing
-              //     }
-
-              //     // If no matchedWith, display just the goal name
-              //     return ChatCard(
-              //       title: "**$goalName**",
-              //       description: status ?? "No status",
-              //       roomId: "roomId",
-              //       userId: "userId",
-              //       userStreak: 0,
-              //       buddyStreak: 0
-              //     );
-              //   },
-              // );
+              print("matched with $matchedWith");
               return FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance.collection('goals').doc(goalId).get(),
         builder: (context, goalSnapshot) {
@@ -174,6 +76,7 @@ class ChatScreen extends StatelessWidget {
 
               final roomId = [userId, matchedWith]..sort();
               final roomIdString = roomId.join("-");
+              print("ROOM ID STRING $roomIdString");
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance.collection('chats').doc(roomIdString).get(),

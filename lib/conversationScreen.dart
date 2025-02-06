@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConversationScreen extends StatefulWidget {
   final String roomId;
@@ -42,9 +43,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     socket.connect();
 
-    socket.on('connect', (_) {
-      String matchedWith = widget.roomId.split('-')[1];
-      socket.emit('join-room', {'userId': widget.userId, 'matchedWith': matchedWith});
+    socket.on('connect', (_) async {
+      String firstId = widget.roomId.split('-')[0];
+      print("FIRST ID $firstId");
+      String secondId = widget.roomId.split('-')[1];
+      print("SECOND ID $secondId");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userId = await prefs.getString('userId');
+      print("USER ID $userId");
+      String matchedWith = (firstId == userId) ? secondId : firstId;
+      print("MATCHED WITH $matchedWith");
+
+      socket.emit('join-room', {'userId': userId, 'matchedWith': matchedWith});
     });
 
     socket.on('message-history', (data) {
